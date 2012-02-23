@@ -226,7 +226,7 @@ namespace MotionDetectorSample
 			{
 				new Thread(new ThreadStart(delegate
 				{
-					videoSourcePlayer.GetCurrentVideoFrame().Save(@"C:\Francois\Other\MotionDetection\" + now.ToString("yyyy mm dd hh mm ss") + ".bmp", ImageFormat.Jpeg);
+					videoSourcePlayer.GetCurrentVideoFrame().Save(@"C:\Francois\Other\MotionDetection\" + now.ToString("yyyy MM dd hh mm ss") + ".bmp", ImageFormat.Jpeg);
 				})).Start();
 				lastSnapshotTime = now;
 			}
