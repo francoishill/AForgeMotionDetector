@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C# Express 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AForgeMotionDetector", "AForgeMotionDetector.csproj", "{9800A224-0BF0-4D5D-A03C-AA7A4842D3B8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AForgeMotionDetector", "AForgeMotionDetector\AForgeMotionDetector.csproj", "{9800A224-0BF0-4D5D-A03C-AA7A4842D3B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
