@@ -248,7 +248,7 @@ namespace MotionDetectorSample
 				new Thread(new ThreadStart(delegate
 				{
 					videoSourcePlayer.GetCurrentVideoFrame().Save(
-						@"C:\Francois\websites\firepuma\motiondetected\" + now.ToString("yyyy MM dd hh mm ss") + ".bmp",
+						@"C:\Francois\websites\firepuma\motiondetected\" + now.ToString("yyyy MM dd HH mm ss") + ".bmp",
 						ImageFormat.Jpeg);
 				})).Start();
 				lastSnapshotTime = now;
