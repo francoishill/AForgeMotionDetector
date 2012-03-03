@@ -29,6 +29,20 @@ namespace MotionDetectorSample
             get { return device; }
         }
 
+		static FilterInfoCollection cams;
+		public static string FirstCamera
+		{
+			get
+			{
+				if (cams == null)
+					cams = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+				if (cams.Count > 0)
+					return new FilterInfoCollection(FilterCategory.VideoInputDevice)[0].MonikerString;
+				else
+					return null;
+			}
+		}
+
         // Constructor
         public VideoCaptureDeviceForm( )
         {

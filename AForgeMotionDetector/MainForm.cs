@@ -22,6 +22,8 @@ using AForge.Video;
 using AForge.Video.VFW;
 using AForge.Video.DirectShow;
 using AForge.Vision.Motion;
+using System.Runtime.InteropServices;
+using SharedClasses;
 
 namespace MotionDetectorSample
 {
@@ -58,6 +60,11 @@ namespace MotionDetectorSample
 		{
 			InitializeComponent();
 			Application.Idle += new EventHandler(Application_Idle);
+		}
+
+		private void MainForm_Load(object sender, EventArgs e)
+		{
+			OpenFirstCamera();
 		}
 
 		// Application's main form is closing
@@ -149,6 +156,15 @@ namespace MotionDetectorSample
 			}
 		}
 
+		private void OpenFirstCamera()
+		{
+			string firstCamMonikerString = VideoCaptureDeviceForm.FirstCamera;
+			if (string.IsNullOrEmpty(firstCamMonikerString))
+				MessageBox.Show("No camera device found", "No camera", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+			else
+				OpenVideoSource(new VideoCaptureDevice(firstCamMonikerString));
+		}
+
 		// Open video file using DirectShow
 		private void openVideoFileusingDirectShowToolStripMenuItem_Click(object sender, EventArgs e)
 		{
@@ -222,11 +238,18 @@ namespace MotionDetectorSample
 		private void TakeSnapshot()
 		{
 			DateTime now = DateTime.Now;
-			if (now.Subtract(lastSnapshotTime).TotalSeconds > 2)
+			if (now.Subtract(lastSnapshotTime).TotalSeconds > 2 && IdleSeconds > 5)
 			{
+				ProwlAPI.SendNotificationUntilResponseFromiDevice(
+						ProwlAPI.DefaultApiKey,
+						"motiondetected",
+						TimeSpan.FromSeconds(30),//Interval to for sending notification to iphone
+						ProwlAPI.Priority.Emergency);
 				new Thread(new ThreadStart(delegate
 				{
-					videoSourcePlayer.GetCurrentVideoFrame().Save(@"C:\Francois\Other\MotionDetection\" + now.ToString("yyyy MM dd hh mm ss") + ".bmp", ImageFormat.Jpeg);
+					videoSourcePlayer.GetCurrentVideoFrame().Save(
+						@"C:\Francois\websites\firepuma\motiondetected\" + now.ToString("yyyy MM dd hh mm ss") + ".bmp",
+						ImageFormat.Jpeg);
 				})).Start();
 				lastSnapshotTime = now;
 			}
@@ -562,6 +585,53 @@ namespace MotionDetectorSample
 		private void showMotionHistoryToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			showMotionHistoryToolStripMenuItem.Checked = !showMotionHistoryToolStripMenuItem.Checked;
+		}
+
+		// Unmanaged function from user32.dll
+		[DllImport("user32.dll")]
+		static extern bool GetLastInputInfo(ref LASTINPUTINFO plii);
+
+		// Struct we'll need to pass to the function
+		internal struct LASTINPUTINFO
+		{
+			public uint cbSize;
+			public uint dwTime;
+		}
+
+		private static int IdleSeconds = 0;
+		private void tmrIdle_Tick(object sender, EventArgs e)
+		{
+			GetIdleSeconds();
+		}
+
+		private static void GetIdleSeconds()
+		{
+			// Get the system uptime
+			int systemUptime = Environment.TickCount;
+			// The tick at which the last input was recorded
+			int LastInputTicks = 0;
+			// The number of ticks that passed since last input
+			int IdleTicks = 0;
+
+			// Set the struct
+			LASTINPUTINFO LastInputInfo = new LASTINPUTINFO();
+			LastInputInfo.cbSize = (uint)Marshal.SizeOf(LastInputInfo);
+			LastInputInfo.dwTime = 0;
+
+			// If we have a value from the function
+			if (GetLastInputInfo(ref LastInputInfo))
+			{
+				// Get the number of ticks at the point when the last activity was seen
+				LastInputTicks = (int)LastInputInfo.dwTime;
+				// Number of idle ticks = system uptime ticks - number of ticks at last input
+				IdleTicks = systemUptime - LastInputTicks;
+			}
+
+			IdleSeconds = (int)(IdleTicks / 1000);
+			//// Set the labels; divide by 1000 to transform the milliseconds to seconds
+			//lblSystemUptime.Text = Convert.ToString(systemUptime / 1000) + " seconds";
+			//lblIdleTime.Text = Convert.ToString(IdleTicks / 1000) + " seconds";
+			//lblLastInput.Text = "At second " + Convert.ToString(LastInputTicks / 1000);
 		}
 	}
 }
