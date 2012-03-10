@@ -64,7 +64,26 @@ namespace MotionDetectorSample
 
 		private void MainForm_Load(object sender, EventArgs e)
 		{
+			WindowMessagesInterop.InitializeClientMessages();
 			OpenFirstCamera();
+		}
+
+		protected override void WndProc(ref Message m)
+		{
+			WindowMessagesInterop.MessageTypes mt;
+			WindowMessagesInterop.ClientHandleMessage(m.Msg, m.WParam, m.LParam, out mt);
+			if (mt == WindowMessagesInterop.MessageTypes.Show)
+			{
+				if (this.WindowState == FormWindowState.Minimized)
+					this.WindowState = FormWindowState.Normal;
+				this.Show();
+			}
+			else if (mt == WindowMessagesInterop.MessageTypes.Hide)
+				this.Hide();
+			else if (mt == WindowMessagesInterop.MessageTypes.Close)
+				this.Close();
+			else
+				base.WndProc(ref m);
 		}
 
 		// Application's main form is closing

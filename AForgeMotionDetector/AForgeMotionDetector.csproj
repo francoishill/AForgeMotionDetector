@@ -101,6 +101,9 @@
     <Compile Include="..\..\SharedClasses\UserMessages.cs">
       <Link>UserMessages.cs</Link>
     </Compile>
+    <Compile Include="..\..\SharedClasses\WindowMessagesInterop.cs">
+      <Link>WindowMessagesInterop.cs</Link>
+    </Compile>
     <Compile Include="AboutForm.cs">
       <SubType>Form</SubType>
     </Compile>
