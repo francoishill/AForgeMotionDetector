@@ -13,7 +13,7 @@
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -92,14 +92,32 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\SharedClasses\EncodeAndDecodeInterop.cs">
+      <Link>EncodeAndDecodeInterop.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedClasses\FileSystemInterop.cs">
+      <Link>FileSystemInterop.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedClasses\MiniIndeterminateProgress.cs">
+      <Link>MiniIndeterminateProgress.cs</Link>
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="..\..\SharedClasses\MiniIndeterminateProgress.designer.cs">
+      <Link>MiniIndeterminateProgress.designer.cs</Link>
+      <DependentUpon>MiniIndeterminateProgress.cs</DependentUpon>
+    </Compile>
     <Compile Include="..\..\SharedClasses\ProwlAPI.cs">
       <Link>ProwlAPI.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedClasses\SettingsInterop.cs">
+      <Link>SettingsInterop.cs</Link>
     </Compile>
     <Compile Include="..\..\SharedClasses\ThreadingInterop.cs">
       <Link>ThreadingInterop.cs</Link>
     </Compile>
     <Compile Include="..\..\SharedClasses\UserMessageBox.cs">
       <Link>UserMessageBox.cs</Link>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="..\..\SharedClasses\UserMessageBox.designer.cs">
       <Link>UserMessageBox.designer.cs</Link>
@@ -143,6 +161,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="..\..\SharedClasses\MiniIndeterminateProgress.resx">
+      <Link>MiniIndeterminateProgress.resx</Link>
+      <DependentUpon>MiniIndeterminateProgress.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="..\..\SharedClasses\UserMessageBox.resx">
       <Link>UserMessageBox.resx</Link>
       <DependentUpon>UserMessageBox.cs</DependentUpon>

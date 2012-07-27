@@ -24,11 +24,21 @@ using AForge.Video.DirectShow;
 using AForge.Vision.Motion;
 using System.Runtime.InteropServices;
 using SharedClasses;
+using System.IO;
+using System.Diagnostics;
 
 namespace MotionDetectorSample
 {
 	public partial class MainForm : Form
 	{
+		private const string ThisAppName = "AForgeMotionDetector";
+		private readonly TimeSpan DefaultSnapshotInterval = TimeSpan.FromSeconds(1);
+		private readonly TimeSpan DefaultWaitNoUserinputDuration = TimeSpan.FromSeconds(10);
+		private readonly TimeSpan DefaultKeepRecordingAfterLastMovementDuration = TimeSpan.FromMinutes(1);
+		private string filePathForIntervalSeconds = SettingsInterop.GetFullFilePathInLocalAppdata("intervalforsnapshot_seconds.fjset", ThisAppName);
+		private string filePathForWaitNoUserInputSeconds = SettingsInterop.GetFullFilePathInLocalAppdata("periodwaitnotuserinput_seconds.fjset", ThisAppName);
+		private string filePathForKeepRecordingAfterLastMovement = SettingsInterop.GetFullFilePathInLocalAppdata("keeprecordingafterlastmovement_minutes.fjset", ThisAppName);
+
 		// opened video source
 		private IVideoSource videoSource = null;
 		// motion detector
@@ -60,6 +70,48 @@ namespace MotionDetectorSample
 		{
 			InitializeComponent();
 			Application.Idle += new EventHandler(Application_Idle);
+
+
+			LoadSnapshotInterval(filePathForIntervalSeconds, DefaultSnapshotInterval, numericUpDownSnapshotInterval, "snapshot interval", true);
+			numericUpDownSnapshotInterval.ValueChanged += delegate { SaveSnapshotInterval(filePathForIntervalSeconds, numericUpDownSnapshotInterval, "snapshot interval"); };
+
+			//LoadSnapshotInterval(filePathForWaitNoUserInputSeconds, DefaultWaitNoUserinputDuration, numericUpDownWaitNoUserInput, "wait for no userinput duration", true);
+			//numericUpDownWaitNoUserInput.ValueChanged += delegate { SaveSnapshotInterval(filePathForWaitNoUserInputSeconds, numericUpDownWaitNoUserInput, "wait for no userinput duration"); };
+
+			LoadSnapshotInterval(filePathForKeepRecordingAfterLastMovement, DefaultKeepRecordingAfterLastMovementDuration, numericUpDownKeepRecordingAfterLastMovement, "keep recording after last movement duration", false);
+			numericUpDownKeepRecordingAfterLastMovement.ValueChanged += delegate { SaveSnapshotInterval(filePathForKeepRecordingAfterLastMovement, numericUpDownKeepRecordingAfterLastMovement, "keep recording after last movement duration"); };
+		}
+
+		private static void LoadSnapshotInterval(string filepath, TimeSpan defaultValue, NumericUpDown numericUpDown, string intervalname_formessages, bool secondstrue_minutesfalse)
+		{
+			if (!File.Exists(filepath))
+			{
+				numericUpDown.Value = secondstrue_minutesfalse ? (int)defaultValue.TotalSeconds : (int)defaultValue.TotalMinutes;
+				SaveSnapshotInterval(filepath, numericUpDown, intervalname_formessages);
+				return;
+			}
+
+			int tmpIntervalSecondsOrMinutes;
+			try
+			{
+				if (int.TryParse(File.ReadAllText(filepath), out tmpIntervalSecondsOrMinutes))
+					numericUpDown.Value = tmpIntervalSecondsOrMinutes;
+			}
+			catch (Exception exc)
+			{
+				UserMessages.ShowErrorMessage("Unable to read " + intervalname_formessages + " from file: " + exc.Message);
+			}
+		}
+		private static void SaveSnapshotInterval(string filepath, NumericUpDown numericUpDown, string intervalname_formessages)
+		{
+			try
+			{
+				File.WriteAllText(filepath, numericUpDown.Value.ToString());
+			}
+			catch (Exception exc)
+			{
+				UserMessages.ShowErrorMessage("Unable to save new " + intervalname_formessages + ": " + exc.Message);
+			}
 		}
 
 		private void MainForm_Load(object sender, EventArgs e)
@@ -148,6 +200,7 @@ namespace MotionDetectorSample
 				{
 					"http://195.243.185.195/axis-cgi/mjpg/video.cgi?camera=3",
 					"http://195.243.185.195/axis-cgi/mjpg/video.cgi?camera=4",
+					"http://192.168.1.100:8081/videofeed"
 				};
 
 			if (form.ShowDialog(this) == DialogResult.OK)
@@ -253,27 +306,52 @@ namespace MotionDetectorSample
 			this.Cursor = Cursors.Default;
 		}
 
-		private DateTime lastSnapshotTime = DateTime.Now;
-		private void TakeSnapshot()
+		private string GetFolderpathForSnapshot()
 		{
-			DateTime now = DateTime.Now;
-			if (now.Subtract(lastSnapshotTime).TotalSeconds > 2 && IdleSeconds > 5)
-			{
-				ProwlAPI.SendNotificationUntilResponseFromiDevice(
-						ProwlAPI.DefaultApiKey,
-						"motiondetected",
-						TimeSpan.FromSeconds(30),//Interval to for sending notification to iphone
-						ProwlAPI.Priority.Emergency);
-				new Thread(new ThreadStart(delegate
-				{
-					videoSourcePlayer.GetCurrentVideoFrame().Save(
-						@"C:\Francois\websites\firepuma\motiondetected\" + now.ToString("yyyy MM dd HH mm ss") + ".bmp",
-						ImageFormat.Jpeg);
-				})).Start();
-				lastSnapshotTime = now;
-			}
+			string dir = SettingsInterop.LocalAppdataPath(ThisAppName);
+			dir += "\\MotionDetected";
+			if (!Directory.Exists(dir))
+				Directory.CreateDirectory(dir);
+			return dir;
 		}
 
+		private DateTime lastSnapshotTime = DateTime.Now;
+		private DateTime lastmovementDetected = DateTime.MinValue;
+		private void TakeSnapshot(bool force = false)
+		{
+			DateTime now = DateTime.Now;
+			try
+			{
+				//bool mustTakeSnapshotBasedOnTimers = ;
+				if (force || now.Subtract(lastSnapshotTime).TotalSeconds > (int)numericUpDownSnapshotInterval.Value)//&& IdleSeconds >= (int)numericUpDownWaitNoUserInput.Value//mustTakeSnapshotBasedOnTimers)
+				{
+					
+					//ProwlAPI.SendNotificationUntilResponseFromiDevice(
+					//		ProwlAPI.DefaultApiKey,
+					//		"motiondetected",
+					//		TimeSpan.FromSeconds(30),//Interval to for sending notification to iphone
+					//		ProwlAPI.Priority.Emergency);
+					new Thread(new ThreadStart(delegate
+					{
+						try
+						{
+							videoSourcePlayer.GetCurrentVideoFrame().Save(
+								GetFolderpathForSnapshot() + "\\" + now.ToString("yyyy MM dd HH mm ss") + ".jpeg",
+								//SettingsInterop.GetFullFilePathInLocalAppdata(now.ToString("yyyy MM dd HH mm ss") + ".jpeg", "AForgeMotionDetector", "MotionDetected"),
+								ImageFormat.Jpeg);
+						}
+						catch { }
+					})).Start();
+
+					lastSnapshotTime = now;
+					//if (mustTakeSnapshotBasedOnTimers)
+					//	lastmovementDetected = now;
+				}
+			}
+			catch { }
+		}
+
+		//private DateTime lastMovement = DateTime.MinValue;
 		// New frame received by the player
 		private void videoSourcePlayer_NewFrame(object sender, ref Bitmap image)
 		{
@@ -285,10 +363,14 @@ namespace MotionDetectorSample
 
 					if (motionLevel > motionAlarmLevel)
 					{
+						//lastMovement = DateTime.Now;
 						// flash for 2 seconds
+						lastmovementDetected = DateTime.Now;
 						flash = (int)(2 * (1000 / alarmTimer.Interval));
 						TakeSnapshot();
 					}
+					else if (DateTime.Now.Subtract(lastmovementDetected).TotalMinutes <= (double)numericUpDownKeepRecordingAfterLastMovement.Value)
+						TakeSnapshot(true);
 
 					// check objects' count
 					if (detector.MotionProcessingAlgorithm is BlobCountingObjectsProcessing)
@@ -323,9 +405,9 @@ namespace MotionDetectorSample
 		// Draw motion history
 		private void DrawMotionHistory(Bitmap image)
 		{
-			Color greenColor  = Color.FromArgb(128, 0, 255, 0);
+			Color greenColor = Color.FromArgb(128, 0, 255, 0);
 			Color yellowColor = Color.FromArgb(128, 255, 255, 0);
-			Color redColor    = Color.FromArgb(128, 255, 0, 0);
+			Color redColor = Color.FromArgb(128, 255, 0, 0);
 
 			BitmapData bitmapData = image.LockBits(new Rectangle(0, 0, image.Width, image.Height),
 				ImageLockMode.ReadWrite, image.PixelFormat);
@@ -617,13 +699,14 @@ namespace MotionDetectorSample
 			public uint dwTime;
 		}
 
-		private static int IdleSeconds = 0;
+		//private static int IdleSeconds = 0;
 		private void tmrIdle_Tick(object sender, EventArgs e)
 		{
-			GetIdleSeconds();
+			int IdleSecondsNotUsed;
+			//GetIdleSeconds();
 		}
 
-		private static void GetIdleSeconds()
+		/*private static void GetIdleSeconds()
 		{
 			// Get the system uptime
 			int systemUptime = Environment.TickCount;
@@ -651,6 +734,11 @@ namespace MotionDetectorSample
 			//lblSystemUptime.Text = Convert.ToString(systemUptime / 1000) + " seconds";
 			//lblIdleTime.Text = Convert.ToString(IdleTicks / 1000) + " seconds";
 			//lblLastInput.Text = "At second " + Convert.ToString(LastInputTicks / 1000);
+		}*/
+
+		private void openSavedimagesFolderToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Process.Start("explorer", GetFolderpathForSnapshot());
 		}
 	}
 }

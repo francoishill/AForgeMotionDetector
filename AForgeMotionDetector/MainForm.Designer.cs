@@ -38,6 +38,8 @@ namespace MotionDetectorSample
 			this.openMJPEGURLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+			this.openSavedimagesFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
 			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.motionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.motionDetectionAlgorithmToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,12 +67,21 @@ namespace MotionDetectorSample
 			this.fpsLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.objectsCountLabel = new System.Windows.Forms.ToolStripStatusLabel();
 			this.panel1 = new System.Windows.Forms.Panel();
+			this.numericUpDownKeepRecordingAfterLastMovement = new System.Windows.Forms.NumericUpDown();
+			this.label3 = new System.Windows.Forms.Label();
+			this.numericUpDownWaitNoUserInput = new System.Windows.Forms.NumericUpDown();
+			this.label2 = new System.Windows.Forms.Label();
+			this.label1 = new System.Windows.Forms.Label();
+			this.numericUpDownSnapshotInterval = new System.Windows.Forms.NumericUpDown();
 			this.videoSourcePlayer = new AForge.Controls.VideoSourcePlayer();
 			this.alarmTimer = new System.Windows.Forms.Timer(this.components);
 			this.tmrIdle = new System.Windows.Forms.Timer(this.components);
 			this.menuMenu.SuspendLayout();
 			this.statusBar.SuspendLayout();
 			this.panel1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDownKeepRecordingAfterLastMovement)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDownWaitNoUserInput)).BeginInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDownSnapshotInterval)).BeginInit();
 			this.SuspendLayout();
 			// 
 			// menuMenu
@@ -82,7 +93,7 @@ namespace MotionDetectorSample
             this.helpToolStripMenuItem});
 			this.menuMenu.Location = new System.Drawing.Point(0, 0);
 			this.menuMenu.Name = "menuMenu";
-			this.menuMenu.Size = new System.Drawing.Size(432, 24);
+			this.menuMenu.Size = new System.Drawing.Size(1193, 24);
 			this.menuMenu.TabIndex = 0;
 			// 
 			// fileToolStripMenuItem
@@ -94,6 +105,8 @@ namespace MotionDetectorSample
             this.openMJPEGURLToolStripMenuItem,
             this.openToolStripMenuItem,
             this.toolStripMenuItem1,
+            this.openSavedimagesFolderToolStripMenuItem,
+            this.toolStripSeparator1,
             this.exitToolStripMenuItem});
 			this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
 			this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
@@ -139,6 +152,18 @@ namespace MotionDetectorSample
 			// 
 			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
 			this.toolStripMenuItem1.Size = new System.Drawing.Size(267, 6);
+			// 
+			// openSavedimagesFolderToolStripMenuItem
+			// 
+			this.openSavedimagesFolderToolStripMenuItem.Name = "openSavedimagesFolderToolStripMenuItem";
+			this.openSavedimagesFolderToolStripMenuItem.Size = new System.Drawing.Size(270, 22);
+			this.openSavedimagesFolderToolStripMenuItem.Text = "Open saved &images folder";
+			this.openSavedimagesFolderToolStripMenuItem.Click += new System.EventHandler(this.openSavedimagesFolderToolStripMenuItem_Click);
+			// 
+			// toolStripSeparator1
+			// 
+			this.toolStripSeparator1.Name = "toolStripSeparator1";
+			this.toolStripSeparator1.Size = new System.Drawing.Size(267, 6);
 			// 
 			// exitToolStripMenuItem
 			// 
@@ -317,9 +342,9 @@ namespace MotionDetectorSample
 			this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fpsLabel,
             this.objectsCountLabel});
-			this.statusBar.Location = new System.Drawing.Point(0, 334);
+			this.statusBar.Location = new System.Drawing.Point(0, 592);
 			this.statusBar.Name = "statusBar";
-			this.statusBar.Size = new System.Drawing.Size(432, 22);
+			this.statusBar.Size = new System.Drawing.Size(1193, 22);
 			this.statusBar.TabIndex = 3;
 			// 
 			// fpsLabel
@@ -340,25 +365,116 @@ namespace MotionDetectorSample
             | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
 			this.objectsCountLabel.BorderStyle = System.Windows.Forms.Border3DStyle.SunkenInner;
 			this.objectsCountLabel.Name = "objectsCountLabel";
-			this.objectsCountLabel.Size = new System.Drawing.Size(267, 17);
+			this.objectsCountLabel.Size = new System.Drawing.Size(1028, 17);
 			this.objectsCountLabel.Spring = true;
 			this.objectsCountLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
 			// panel1
 			// 
+			this.panel1.Controls.Add(this.numericUpDownKeepRecordingAfterLastMovement);
+			this.panel1.Controls.Add(this.label3);
+			this.panel1.Controls.Add(this.numericUpDownWaitNoUserInput);
+			this.panel1.Controls.Add(this.label2);
+			this.panel1.Controls.Add(this.label1);
+			this.panel1.Controls.Add(this.numericUpDownSnapshotInterval);
 			this.panel1.Controls.Add(this.videoSourcePlayer);
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panel1.Location = new System.Drawing.Point(0, 24);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(432, 310);
+			this.panel1.Size = new System.Drawing.Size(1193, 568);
 			this.panel1.TabIndex = 4;
+			// 
+			// numericUpDownKeepRecordingAfterLastMovement
+			// 
+			this.numericUpDownKeepRecordingAfterLastMovement.Location = new System.Drawing.Point(225, 43);
+			this.numericUpDownKeepRecordingAfterLastMovement.Maximum = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+			this.numericUpDownKeepRecordingAfterLastMovement.Name = "numericUpDownKeepRecordingAfterLastMovement";
+			this.numericUpDownKeepRecordingAfterLastMovement.Size = new System.Drawing.Size(53, 20);
+			this.numericUpDownKeepRecordingAfterLastMovement.TabIndex = 6;
+			this.numericUpDownKeepRecordingAfterLastMovement.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			// 
+			// label3
+			// 
+			this.label3.AutoSize = true;
+			this.label3.Location = new System.Drawing.Point(12, 45);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(203, 13);
+			this.label3.TabIndex = 5;
+			this.label3.Text = "Keep recording after movement (minutes):";
+			// 
+			// numericUpDownWaitNoUserInput
+			// 
+			this.numericUpDownWaitNoUserInput.Location = new System.Drawing.Point(928, 75);
+			this.numericUpDownWaitNoUserInput.Maximum = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+			this.numericUpDownWaitNoUserInput.Name = "numericUpDownWaitNoUserInput";
+			this.numericUpDownWaitNoUserInput.Size = new System.Drawing.Size(53, 20);
+			this.numericUpDownWaitNoUserInput.TabIndex = 4;
+			this.numericUpDownWaitNoUserInput.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericUpDownWaitNoUserInput.Visible = false;
+			// 
+			// label2
+			// 
+			this.label2.AutoSize = true;
+			this.label2.Location = new System.Drawing.Point(715, 77);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(157, 13);
+			this.label2.TabIndex = 3;
+			this.label2.Text = "Wait for no userinput (seconds):";
+			this.label2.Visible = false;
+			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(12, 17);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(141, 13);
+			this.label1.TabIndex = 2;
+			this.label1.Text = "Snapshot interval (seconds):";
+			// 
+			// numericUpDownSnapshotInterval
+			// 
+			this.numericUpDownSnapshotInterval.Location = new System.Drawing.Point(225, 15);
+			this.numericUpDownSnapshotInterval.Maximum = new decimal(new int[] {
+            60,
+            0,
+            0,
+            0});
+			this.numericUpDownSnapshotInterval.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+			this.numericUpDownSnapshotInterval.Name = "numericUpDownSnapshotInterval";
+			this.numericUpDownSnapshotInterval.Size = new System.Drawing.Size(53, 20);
+			this.numericUpDownSnapshotInterval.TabIndex = 1;
+			this.numericUpDownSnapshotInterval.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
 			// 
 			// videoSourcePlayer
 			// 
 			this.videoSourcePlayer.AutoSizeControl = true;
 			this.videoSourcePlayer.BackColor = System.Drawing.SystemColors.ControlDarkDark;
 			this.videoSourcePlayer.ForeColor = System.Drawing.Color.White;
-			this.videoSourcePlayer.Location = new System.Drawing.Point(55, 34);
+			this.videoSourcePlayer.Location = new System.Drawing.Point(435, 163);
 			this.videoSourcePlayer.Name = "videoSourcePlayer";
 			this.videoSourcePlayer.Size = new System.Drawing.Size(322, 242);
 			this.videoSourcePlayer.TabIndex = 0;
@@ -380,7 +496,7 @@ namespace MotionDetectorSample
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(432, 356);
+			this.ClientSize = new System.Drawing.Size(1193, 614);
 			this.Controls.Add(this.panel1);
 			this.Controls.Add(this.statusBar);
 			this.Controls.Add(this.menuMenu);
@@ -389,7 +505,6 @@ namespace MotionDetectorSample
 			this.Name = "MainForm";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
 			this.Text = "Motion Detector";
-			this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
 			this.Load += new System.EventHandler(this.MainForm_Load);
 			this.menuMenu.ResumeLayout(false);
@@ -397,6 +512,10 @@ namespace MotionDetectorSample
 			this.statusBar.ResumeLayout(false);
 			this.statusBar.PerformLayout();
 			this.panel1.ResumeLayout(false);
+			this.panel1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDownKeepRecordingAfterLastMovement)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDownWaitNoUserInput)).EndInit();
+			((System.ComponentModel.ISupportInitialize)(this.numericUpDownSnapshotInterval)).EndInit();
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -442,6 +561,14 @@ namespace MotionDetectorSample
         private System.Windows.Forms.ToolStripMenuItem showMotionHistoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem crossbarVideoSettingsToolStripMenuItem;
 		private System.Windows.Forms.Timer tmrIdle;
+		private System.Windows.Forms.ToolStripMenuItem openSavedimagesFolderToolStripMenuItem;
+		private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+		private System.Windows.Forms.Label label1;
+		private System.Windows.Forms.NumericUpDown numericUpDownSnapshotInterval;
+		private System.Windows.Forms.NumericUpDown numericUpDownWaitNoUserInput;
+		private System.Windows.Forms.Label label2;
+		private System.Windows.Forms.NumericUpDown numericUpDownKeepRecordingAfterLastMovement;
+		private System.Windows.Forms.Label label3;
     }
 }
 
