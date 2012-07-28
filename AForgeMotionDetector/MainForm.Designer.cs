@@ -342,7 +342,7 @@ namespace MotionDetectorSample
 			this.statusBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fpsLabel,
             this.objectsCountLabel});
-			this.statusBar.Location = new System.Drawing.Point(0, 592);
+			this.statusBar.Location = new System.Drawing.Point(0, 331);
 			this.statusBar.Name = "statusBar";
 			this.statusBar.Size = new System.Drawing.Size(1193, 22);
 			this.statusBar.TabIndex = 3;
@@ -381,7 +381,7 @@ namespace MotionDetectorSample
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.panel1.Location = new System.Drawing.Point(0, 24);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(1193, 568);
+			this.panel1.Size = new System.Drawing.Size(1193, 307);
 			this.panel1.TabIndex = 4;
 			// 
 			// numericUpDownKeepRecordingAfterLastMovement
@@ -474,7 +474,7 @@ namespace MotionDetectorSample
 			this.videoSourcePlayer.AutoSizeControl = true;
 			this.videoSourcePlayer.BackColor = System.Drawing.SystemColors.ControlDarkDark;
 			this.videoSourcePlayer.ForeColor = System.Drawing.Color.White;
-			this.videoSourcePlayer.Location = new System.Drawing.Point(435, 163);
+			this.videoSourcePlayer.Location = new System.Drawing.Point(435, 32);
 			this.videoSourcePlayer.Name = "videoSourcePlayer";
 			this.videoSourcePlayer.Size = new System.Drawing.Size(322, 242);
 			this.videoSourcePlayer.TabIndex = 0;
@@ -496,7 +496,7 @@ namespace MotionDetectorSample
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1193, 614);
+			this.ClientSize = new System.Drawing.Size(1193, 353);
 			this.Controls.Add(this.panel1);
 			this.Controls.Add(this.statusBar);
 			this.Controls.Add(this.menuMenu);
