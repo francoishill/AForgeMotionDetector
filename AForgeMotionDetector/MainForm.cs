@@ -15,6 +15,7 @@ using System.Drawing.Imaging;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading;
+using System.Linq;
 
 using AForge;
 using AForge.Imaging;
@@ -38,6 +39,11 @@ namespace MotionDetectorSample
 		private string filePathForIntervalSeconds = SettingsInterop.GetFullFilePathInLocalAppdata("intervalforsnapshot_seconds.fjset", ThisAppName);
 		private string filePathForWaitNoUserInputSeconds = SettingsInterop.GetFullFilePathInLocalAppdata("periodwaitnotuserinput_seconds.fjset", ThisAppName);
 		private string filePathForKeepRecordingAfterLastMovement = SettingsInterop.GetFullFilePathInLocalAppdata("keeprecordingafterlastmovement_minutes.fjset", ThisAppName);
+		private string filePathBulksmsUsername = SettingsInterop.GetFullFilePathInLocalAppdata("bulksms_username.fjset", ThisAppName);
+		private string filePathBulksmsPassword = SettingsInterop.GetFullFilePathInLocalAppdata("bulksms_password.fjset", ThisAppName);
+		private string filePathBulksmsNumbers = SettingsInterop.GetFullFilePathInLocalAppdata("bulksms_numbers.fjset", ThisAppName);
+		private string filePathBulksmsPreformattedMessage = SettingsInterop.GetFullFilePathInLocalAppdata("bulksms_preformattedmessage.fjset", ThisAppName);
+		private string filePathBulksmsPhotoBaseUrl = SettingsInterop.GetFullFilePathInLocalAppdata("bulksms_photobaseurl.fjset", ThisAppName);
 
 		// opened video source
 		private IVideoSource videoSource = null;
@@ -71,6 +77,7 @@ namespace MotionDetectorSample
 			InitializeComponent();
 			Application.Idle += new EventHandler(Application_Idle);
 
+			appStartupTime = DateTime.Now;
 
 			LoadSnapshotInterval(filePathForIntervalSeconds, DefaultSnapshotInterval, numericUpDownSnapshotInterval, "snapshot interval", true);
 			numericUpDownSnapshotInterval.ValueChanged += delegate { SaveSnapshotInterval(filePathForIntervalSeconds, numericUpDownSnapshotInterval, "snapshot interval"); };
@@ -81,6 +88,12 @@ namespace MotionDetectorSample
 			LoadSnapshotInterval(filePathForKeepRecordingAfterLastMovement, DefaultKeepRecordingAfterLastMovementDuration, numericUpDownKeepRecordingAfterLastMovement, "keep recording after last movement duration", false);
 			numericUpDownKeepRecordingAfterLastMovement.ValueChanged += delegate { SaveSnapshotInterval(filePathForKeepRecordingAfterLastMovement, numericUpDownKeepRecordingAfterLastMovement, "keep recording after last movement duration"); };
 		}
+
+		private string Bulksms_username { get { return File.ReadAllText(filePathBulksmsUsername).Trim(); } }
+		private string Bulksms_password { get { return File.ReadAllText(filePathBulksmsPassword).Trim(); } }
+		private List<string> Bulksms_numbers { get { return File.ReadAllLines(filePathBulksmsNumbers).Where(num => !string.IsNullOrWhiteSpace(num)).ToList(); } }
+		private string Bulksms_preformattedMessage { get { return File.ReadAllText(filePathBulksmsPreformattedMessage).Trim(); } }
+		private string Bulksms_baseurl { get { return File.ReadAllText(filePathBulksmsPhotoBaseUrl).Trim(); } }
 
 		private static void LoadSnapshotInterval(string filepath, TimeSpan defaultValue, NumericUpDown numericUpDown, string intervalname_formessages, bool secondstrue_minutesfalse)
 		{
@@ -317,15 +330,21 @@ namespace MotionDetectorSample
 
 		private DateTime lastSnapshotTime = DateTime.Now;
 		private DateTime lastmovementDetected = DateTime.MinValue;
+		private DateTime lastSmsSend = DateTime.MinValue;
+		private DateTime appStartupTime = DateTime.MinValue;
 		private void TakeSnapshot(bool force = false)
 		{
 			DateTime now = DateTime.Now;
+
+			if (now.Subtract(appStartupTime).TotalMinutes < 1)
+				return;
+
 			try
 			{
 				//bool mustTakeSnapshotBasedOnTimers = ;
 				if (force || now.Subtract(lastSnapshotTime).TotalSeconds > (int)numericUpDownSnapshotInterval.Value)//&& IdleSeconds >= (int)numericUpDownWaitNoUserInput.Value//mustTakeSnapshotBasedOnTimers)
 				{
-					
+
 					//ProwlAPI.SendNotificationUntilResponseFromiDevice(
 					//		ProwlAPI.DefaultApiKey,
 					//		"motiondetected",
@@ -335,10 +354,22 @@ namespace MotionDetectorSample
 					{
 						try
 						{
+							string filename = now.ToString("yyyy_MM_dd_HH_mm_ss") + ".jpeg";
 							videoSourcePlayer.GetCurrentVideoFrame().Save(
-								GetFolderpathForSnapshot() + "\\" + now.ToString("yyyy MM dd HH mm ss") + ".jpeg",
+								GetFolderpathForSnapshot() + "\\" + filename,
 								//SettingsInterop.GetFullFilePathInLocalAppdata(now.ToString("yyyy MM dd HH mm ss") + ".jpeg", "AForgeMotionDetector", "MotionDetected"),
 								ImageFormat.Jpeg);
+							if (now.Subtract(lastSmsSend).TotalSeconds > TimeSpan.FromMinutes(30).TotalSeconds)//(int)numericUpDownSnapshotInterval.Value
+							{
+								string url = Bulksms_baseurl.TrimEnd('/') + "/" + filename;
+								lastSmsSend = now;
+								foreach (string num in Bulksms_numbers)
+									SMS.SendSMS.SendMessageAndRetryIfFail(
+										Bulksms_username,
+										Bulksms_password,
+										num,
+										string.Format(Bulksms_preformattedMessage, now, url));
+							}
 						}
 						catch { }
 					})).Start();
@@ -739,6 +770,57 @@ namespace MotionDetectorSample
 		private void openSavedimagesFolderToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			Process.Start("explorer", GetFolderpathForSnapshot());
+		}
+
+		private void MainForm_Shown(object sender, EventArgs e)
+		{
+			bool bulkSmsAllExists = true;
+			if (!File.Exists(filePathBulksmsUsername))
+			{
+				string un = Microsoft.VisualBasic.Interaction.InputBox("Please enter the BulkSMS username");
+				if (string.IsNullOrWhiteSpace(un))
+					bulkSmsAllExists = false;
+				else
+					File.WriteAllText(filePathBulksmsUsername, un);
+			}
+			else if (!File.Exists(filePathBulksmsPassword))
+			{
+				string pa = Microsoft.VisualBasic.Interaction.InputBox("Please enter the BulkSMS password");
+				if (string.IsNullOrWhiteSpace(pa))
+					bulkSmsAllExists = false;
+				else
+					File.WriteAllText(filePathBulksmsPassword, pa);
+			}
+			else if (!File.Exists(filePathBulksmsNumbers))
+			{
+				string nums = Microsoft.VisualBasic.Interaction.InputBox("Please enter the number to SMS to");
+				if (string.IsNullOrWhiteSpace(nums))
+					bulkSmsAllExists = false;
+				else
+					File.WriteAllText(filePathBulksmsNumbers, nums);
+			}
+			else if (!File.Exists(filePathBulksmsPreformattedMessage))
+			{
+				string msg = Microsoft.VisualBasic.Interaction.InputBox("Please enter the PRE-formatted message, containing parameters for 'Current time' and 'Url for photo'");
+				if (string.IsNullOrWhiteSpace(msg))
+					bulkSmsAllExists = false;
+				else
+					File.WriteAllText(filePathBulksmsPreformattedMessage, msg);
+			}
+			else if (!File.Exists(filePathBulksmsPhotoBaseUrl))
+			{
+				string baseurl = Microsoft.VisualBasic.Interaction.InputBox("Please enter the base url for photos");
+				if (string.IsNullOrWhiteSpace(baseurl))
+					bulkSmsAllExists = false;
+				else
+					File.WriteAllText(filePathBulksmsPhotoBaseUrl, baseurl);
+			}
+
+			if (!bulkSmsAllExists)
+			{
+				UserMessages.ShowErrorMessage("All settings are required for the program to work, now exiting");
+				Application.Exit();
+			}
 		}
 	}
 }
