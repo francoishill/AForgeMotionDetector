@@ -120,16 +120,12 @@
     <Compile Include="..\..\SharedClasses\ThreadingInterop.cs">
       <Link>ThreadingInterop.cs</Link>
     </Compile>
-    <Compile Include="..\..\SharedClasses\UserMessageBox.cs">
-      <Link>UserMessageBox.cs</Link>
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="..\..\SharedClasses\UserMessageBox.designer.cs">
-      <Link>UserMessageBox.designer.cs</Link>
-      <DependentUpon>UserMessageBox.cs</DependentUpon>
-    </Compile>
     <Compile Include="..\..\SharedClasses\UserMessages.cs">
       <Link>UserMessages.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedClasses\UserMessages.designer.cs">
+      <Link>UserMessages.designer.cs</Link>
+      <DependentUpon>UserMessages.cs</DependentUpon>
     </Compile>
     <Compile Include="..\..\SharedClasses\WindowMessagesInterop.cs">
       <Link>WindowMessagesInterop.cs</Link>
@@ -170,9 +166,9 @@
       <Link>MiniIndeterminateProgress.resx</Link>
       <DependentUpon>MiniIndeterminateProgress.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\..\SharedClasses\UserMessageBox.resx">
-      <Link>UserMessageBox.resx</Link>
-      <DependentUpon>UserMessageBox.cs</DependentUpon>
+    <EmbeddedResource Include="..\..\SharedClasses\UserMessages.resx">
+      <Link>UserMessages.resx</Link>
+      <DependentUpon>UserMessages.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="AboutForm.resx">
       <SubType>Designer</SubType>
