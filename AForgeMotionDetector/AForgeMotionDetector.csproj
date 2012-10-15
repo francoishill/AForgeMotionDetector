@@ -103,6 +103,13 @@
     <Compile Include="..\..\SharedClasses\FileSystemInterop.cs">
       <Link>FileSystemInterop.cs</Link>
     </Compile>
+    <Compile Include="..\..\SharedClasses\MiniDownloadBarForm.cs">
+      <Link>MiniDownloadBarForm.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SharedClasses\MiniDownloadBarForm.designer.cs">
+      <Link>MiniDownloadBarForm.designer.cs</Link>
+      <DependentUpon>MiniDownloadBarForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="..\..\SharedClasses\MiniIndeterminateProgress.cs">
       <Link>MiniIndeterminateProgress.cs</Link>
       <SubType>Form</SubType>
@@ -122,6 +129,7 @@
     </Compile>
     <Compile Include="..\..\SharedClasses\UserMessages.cs">
       <Link>UserMessages.cs</Link>
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="..\..\SharedClasses\UserMessages.designer.cs">
       <Link>UserMessages.designer.cs</Link>
@@ -162,6 +170,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="..\..\SharedClasses\MiniDownloadBarForm.resx">
+      <Link>MiniDownloadBarForm.resx</Link>
+      <DependentUpon>MiniDownloadBarForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="..\..\SharedClasses\MiniIndeterminateProgress.resx">
       <Link>MiniIndeterminateProgress.resx</Link>
       <DependentUpon>MiniIndeterminateProgress.cs</DependentUpon>
